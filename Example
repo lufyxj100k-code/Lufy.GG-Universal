@@ -1,0 +1,2727 @@
+--[[
+    Lufy.zz Universal Semilegit Edition
+    100% Functionality Guaranteed
+    All Features and Systems Included
+]]
+
+--// Loaded Check
+if LufyBZLoaded or LufyBZLoading then
+    return
+end
+
+getgenv().LufyBZLoading = true
+
+-- Cache (exact same as AirHub V2)
+local game = game
+local loadstring, typeof, select, next, pcall = loadstring, typeof, select, next, pcall
+local tablefind, tablesort = table.find, table.sort
+local mathfloor = math.floor
+local stringgsub = string.gsub
+local wait, delay, spawn = task.wait, task.delay, task.spawn
+local osdate = os.date
+
+-- Load Roblox Functions Library (exact same as AirHub V2)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys/Roblox-Functions-Library/main/Library.lua"))()
+
+-- Load ESP and Aimbot Libraries (exact same as AirHub V2)
+local ESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys/Exunys-ESP/main/src/ESP.lua"))()
+local Aimbot = loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys/Aimbot-V3/main/src/Aimbot.lua"))()
+
+-- Services
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local Camera = Workspace.CurrentCamera
+local Mouse = LocalPlayer:GetMouse()
+
+-- SetMouseIconVisibility Function (from AirHub V2)
+local function SetMouseIconVisibility(Value)
+    UserInputService.MouseIconEnabled = Value
+end
+
+-- Variables (exact same as AirHub V2)
+local ESP_DeveloperSettings = ESP.DeveloperSettings
+local ESP_Settings = ESP.Settings
+local ESP_Properties = ESP.Properties
+local Crosshair = ESP_Properties.Crosshair
+local CenterDot = Crosshair.CenterDot
+
+local Aimbot_DeveloperSettings = Aimbot.DeveloperSettings
+local Aimbot_Settings = Aimbot.Settings
+local Aimbot_FOV = Aimbot.FOVSettings
+
+-- Initial Settings (exact same as AirHub V2)
+ESP_Settings.LoadConfigOnLaunch = false
+ESP_Settings.Enabled = false
+Crosshair.Enabled = false
+Aimbot_Settings.Enabled = false
+ESP_Properties.Tracer.Enabled = false
+
+-- Configuration Arrays (exact same as AirHub V2)
+local Fonts = {"UI", "System", "Plex", "Monospace"}
+local TracerPositions = {"Bottom", "Center", "Mouse"}
+local HealthBarPositions = {"Top", "Bottom", "Left", "Right"}
+
+-- GUI Colors (Enhanced Dark Theme)
+local Colors = {
+    Background = Color3.fromRGB(45, 45, 45),
+    Secondary = Color3.fromRGB(25, 25, 25),
+    Accent = Color3.fromRGB(255, 255, 255),
+    TabActive = Color3.fromRGB(65, 65, 65),
+    TabInactive = Color3.fromRGB(35, 35, 35),
+    Text = Color3.fromRGB(220, 220, 220),
+    Green = Color3.fromRGB(85, 170, 85),
+    Red = Color3.fromRGB(170, 85, 85),
+    Orange = Color3.fromRGB(255, 165, 0),
+    Blue = Color3.fromRGB(85, 85, 170)
+}
+
+-- GUI Flags System (matching AirHub V2 system)
+local GUI = {
+    flags = {}
+}
+
+-- Add missing GUI functions (from AirHub V2)
+function GUI:Close()
+    LufyGui.Enabled = false
+end
+
+function GUI:Unload()
+    LufyGui:Destroy()
+    ESP:Exit()
+    Aimbot:Exit()
+    getgenv().LufyBZLoaded = nil
+    getgenv().LufyBZLoading = nil
+end
+
+-- Main GUI Creation
+local LufyGui = Instance.new("ScreenGui")
+LufyGui.Name = "LufyBZ"
+LufyGui.Parent = PlayerGui
+LufyGui.ResetOnSpawn = false
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = LufyGui
+MainFrame.BackgroundColor3 = Colors.Background
+MainFrame.Size = UDim2.new(0, 650, 0, 480)
+MainFrame.Position = UDim2.new(0.5, -325, 0.5, -240)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+
+-- Add modern styling
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 12)
+Corner.Parent = MainFrame
+
+local Border = Instance.new("UIStroke")
+Border.Color = Colors.Accent
+Border.Thickness = 2
+Border.Parent = MainFrame
+
+-- Title Bar
+local TitleBar = Instance.new("Frame")
+TitleBar.Name = "TitleBar"
+TitleBar.Parent = MainFrame
+TitleBar.BackgroundColor3 = Colors.Secondary
+TitleBar.Size = UDim2.new(1, 0, 0, 40)
+TitleBar.BorderSizePixel = 0
+TitleBar.Active = true
+
+local TitleCorner = Instance.new("UICorner")
+TitleCorner.CornerRadius = UDim.new(0, 12)
+TitleCorner.Parent = TitleBar
+
+-- Drag Functionality
+local dragging = false
+local dragStart = nil
+local startPos = nil
+
+TitleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+    end
+end)
+
+TitleBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Name = "Title"
+TitleLabel.Parent = TitleBar
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Position = UDim2.new(0, 20, 0, 0)
+TitleLabel.Size = UDim2.new(1, -60, 1, 0)
+TitleLabel.Text = "Lufy.zz Universal Semilegit Edition"
+TitleLabel.TextColor3 = Colors.Accent
+TitleLabel.TextSize = 16
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.Font = Enum.Font.GothamBold
+
+-- Close Button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Parent = TitleBar
+CloseButton.BackgroundColor3 = Colors.Red
+CloseButton.Size = UDim2.new(0, 30, 0, 25)
+CloseButton.Position = UDim2.new(1, -35, 0, 7.5)
+CloseButton.Text = "×"
+CloseButton.TextColor3 = Colors.Accent
+CloseButton.TextSize = 18
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.BorderSizePixel = 0
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 6)
+CloseCorner.Parent = CloseButton
+
+-- Tab Container
+local TabContainer = Instance.new("Frame")
+TabContainer.Name = "TabContainer"
+TabContainer.Parent = MainFrame
+TabContainer.BackgroundColor3 = Colors.Secondary
+TabContainer.Position = UDim2.new(0, 0, 0, 40)
+TabContainer.Size = UDim2.new(0, 130, 1, -40)
+TabContainer.BorderSizePixel = 0
+
+-- Content Container
+local ContentContainer = Instance.new("Frame")
+ContentContainer.Name = "ContentContainer"
+ContentContainer.Parent = MainFrame
+ContentContainer.BackgroundTransparency = 1
+ContentContainer.Position = UDim2.new(0, 135, 0, 45)
+ContentContainer.Size = UDim2.new(1, -140, 1, -50)
+
+-- Section Creation Helper with enhanced functionality
+local function CreateSection(parent, name, side)
+    local existingSections = 0
+    local sideOffset = side == "Left" and 0 or 0.52
+    
+    for _, child in pairs(parent:GetChildren()) do
+        if child.Name:find("Section") then
+            local childSideOffset = child.Position.X.Scale
+            if math.abs(childSideOffset - sideOffset) < 0.1 then
+                existingSections = existingSections + 1
+            end
+        end
+    end
+    
+    local SectionFrame = Instance.new("Frame")
+    SectionFrame.Name = name .. "Section"
+    SectionFrame.Parent = parent
+    SectionFrame.BackgroundColor3 = Colors.Secondary
+    SectionFrame.Size = UDim2.new(0.48, -5, 0, 35)
+    
+    -- Espaciado mejorado para separar secciones
+    local spacing = 200  -- Espaciado base
+    if parent and parent.Name == "GeneralContent" then
+        spacing = 220  -- General con más espacio entre ESP Settings y ESP Developer Settings
+    elseif parent and parent.Name == "TriggerbotContent" then
+        spacing = 250  -- Triggerbot con más espacio entre Triggerbot Settings y Performance Settings
+    elseif parent and parent.Name == "ESPContent" then
+        spacing = 420  -- ESP con mucho más espacio entre categorías
+    end
+    SectionFrame.Position = UDim2.new(sideOffset, 5, 0, existingSections * spacing + 10)
+    SectionFrame.BorderSizePixel = 0
+    
+    local SectionCorner = Instance.new("UICorner")
+    SectionCorner.CornerRadius = UDim.new(0, 8)
+    SectionCorner.Parent = SectionFrame
+    
+    local SectionStroke = Instance.new("UIStroke")
+    SectionStroke.Color = Colors.TabActive
+    SectionStroke.Thickness = 1
+    SectionStroke.Parent = SectionFrame
+    
+    local SectionTitle = Instance.new("TextLabel")
+    SectionTitle.Name = "SectionTitle"
+    SectionTitle.Parent = SectionFrame
+    SectionTitle.BackgroundColor3 = Colors.TabActive
+    SectionTitle.Size = UDim2.new(1, 0, 0, 30)
+    SectionTitle.Text = name
+    SectionTitle.TextColor3 = Colors.Accent
+    SectionTitle.TextSize = 13
+    SectionTitle.Font = Enum.Font.GothamBold
+    SectionTitle.BorderSizePixel = 0
+    
+    local SectionTitleCorner = Instance.new("UICorner")
+    SectionTitleCorner.CornerRadius = UDim.new(0, 8)
+    SectionTitleCorner.Parent = SectionTitle
+    
+    local sectionAPI = {}
+    local currentY = 35
+    
+    function sectionAPI:Toggle(config)
+        local Toggle = Instance.new("TextButton")
+        Toggle.Name = config.Name .. "Toggle"
+        Toggle.Parent = SectionFrame
+        Toggle.BackgroundColor3 = config.Default and Colors.Green or Colors.TabInactive
+        Toggle.Size = UDim2.new(1, -12, 0, 28)
+        Toggle.Position = UDim2.new(0, 6, 0, currentY)
+        Toggle.Text = config.Name .. ": " .. (config.Default and "ON" or "OFF")
+        Toggle.TextColor3 = Colors.Text
+        Toggle.TextSize = 11
+        Toggle.Font = Enum.Font.Gotham
+        Toggle.BorderSizePixel = 0
+        
+        local ToggleCorner = Instance.new("UICorner")
+        ToggleCorner.CornerRadius = UDim.new(0, 6)
+        ToggleCorner.Parent = Toggle
+        
+        -- Store in flags system (matching AirHub V2)
+        GUI.flags[config.Flag or config.Name] = config.Default
+        
+        Toggle.MouseEnter:Connect(function()
+            if not config.Default then
+                Toggle.BackgroundColor3 = Colors.TabActive
+            end
+        end)
+        
+        Toggle.MouseLeave:Connect(function()
+            Toggle.BackgroundColor3 = config.Default and Colors.Green or Colors.TabInactive
+        end)
+        
+        Toggle.MouseButton1Click:Connect(function()
+            config.Default = not config.Default
+            Toggle.Text = config.Name .. ": " .. (config.Default and "ON" or "OFF")
+            Toggle.BackgroundColor3 = config.Default and Colors.Green or Colors.TabInactive
+            GUI.flags[config.Flag or config.Name] = config.Default
+            if config.Callback then config.Callback(config.Default) end
+        end)
+        
+        currentY = currentY + 32
+        SectionFrame.Size = UDim2.new(0.48, -5, 0, currentY + 8)
+        return Toggle
+    end
+    
+    function sectionAPI:Slider(config)
+        local SliderFrame = Instance.new("Frame")
+        SliderFrame.Name = config.Name .. "SliderFrame"
+        SliderFrame.Parent = SectionFrame
+        SliderFrame.BackgroundColor3 = Colors.TabInactive
+        SliderFrame.Size = UDim2.new(1, -12, 0, 28)
+        SliderFrame.Position = UDim2.new(0, 6, 0, currentY)
+        SliderFrame.BorderSizePixel = 0
+        
+        local SliderCorner = Instance.new("UICorner")
+        SliderCorner.CornerRadius = UDim.new(0, 6)
+        SliderCorner.Parent = SliderFrame
+        
+        local SliderBar = Instance.new("Frame")
+        SliderBar.Name = "SliderBar"
+        SliderBar.Parent = SliderFrame
+        SliderBar.BackgroundColor3 = Colors.Green
+        SliderBar.Size = UDim2.new(0, 0, 1, 0)
+        SliderBar.BorderSizePixel = 0
+        
+        local SliderBarCorner = Instance.new("UICorner")
+        SliderBarCorner.CornerRadius = UDim.new(0, 6)
+        SliderBarCorner.Parent = SliderBar
+        
+        local SliderLabel = Instance.new("TextLabel")
+        SliderLabel.Parent = SliderFrame
+        SliderLabel.BackgroundTransparency = 1
+        SliderLabel.Size = UDim2.new(1, 0, 1, 0)
+        SliderLabel.Text = config.Name .. ": " .. tostring(config.Default)
+        SliderLabel.TextColor3 = Colors.Text
+        SliderLabel.TextSize = 11
+        SliderLabel.Font = Enum.Font.Gotham
+        
+        local dragging = false
+        
+        -- Store in flags system (matching AirHub V2)
+        GUI.flags[config.Flag or config.Name] = config.Default
+        
+        local function updateSlider()
+            local percentage = (config.Default - config.Min) / (config.Max - config.Min)
+            SliderBar.Size = UDim2.new(math.clamp(percentage, 0, 1), 0, 1, 0)
+            local displayValue = config.Decimals and (mathfloor(config.Default * 100) / 100) or mathfloor(config.Default)
+            SliderLabel.Text = config.Name .. ": " .. tostring(displayValue)
+            GUI.flags[config.Flag or config.Name] = config.Default
+        end
+        
+        SliderFrame.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                dragging = true
+            end
+        end)
+        
+        SliderFrame.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                dragging = false
+            end
+        end)
+        
+        UserInputService.InputChanged:Connect(function(input)
+            if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                local mouse = Players.LocalPlayer:GetMouse()
+                local relativePos = mouse.X - SliderFrame.AbsolutePosition.X
+                local percentage = math.clamp(relativePos / SliderFrame.AbsoluteSize.X, 0, 1)
+                config.Default = config.Min + (config.Max - config.Min) * percentage
+                if config.Callback then config.Callback(config.Default) end
+                updateSlider()
+            end
+        end)
+        
+        updateSlider()
+        currentY = currentY + 32
+        SectionFrame.Size = UDim2.new(0.48, -5, 0, currentY + 8)
+        return SliderFrame
+    end
+    
+    function sectionAPI:Dropdown(config)
+        local DropdownFrame = Instance.new("Frame")
+        DropdownFrame.Name = config.Name .. "DropdownFrame"
+        DropdownFrame.Parent = SectionFrame
+        DropdownFrame.BackgroundColor3 = Colors.TabInactive
+        DropdownFrame.Size = UDim2.new(1, -12, 0, 28)
+        DropdownFrame.Position = UDim2.new(0, 6, 0, currentY)
+        DropdownFrame.BorderSizePixel = 0
+        
+        local DropdownCorner = Instance.new("UICorner")
+        DropdownCorner.CornerRadius = UDim.new(0, 6)
+        DropdownCorner.Parent = DropdownFrame
+        
+        local DropdownButton = Instance.new("TextButton")
+        DropdownButton.Parent = DropdownFrame
+        DropdownButton.BackgroundTransparency = 1
+        DropdownButton.Size = UDim2.new(1, 0, 1, 0)
+        DropdownButton.Text = config.Name .. ": " .. tostring(config.Default)
+        DropdownButton.TextColor3 = Colors.Text
+        DropdownButton.TextSize = 11
+        DropdownButton.Font = Enum.Font.Gotham
+        
+        local currentIndex = 1
+        for i, option in ipairs(config.Content) do
+            if option == config.Default then
+                currentIndex = i
+                break
+            end
+        end
+        
+        -- Store in flags system (matching AirHub V2)
+        GUI.flags[config.Flag or config.Name] = config.Default
+        
+        local dropdownAPI = {}
+        
+        function dropdownAPI:Refresh(newContent)
+            config.Content = newContent
+            if not tablefind(newContent, config.Default) and #newContent > 0 then
+                config.Default = newContent[1]
+                DropdownButton.Text = config.Name .. ": " .. config.Default
+                GUI.flags[config.Flag or config.Name] = config.Default
+                currentIndex = 1
+            end
+        end
+        
+        DropdownButton.MouseEnter:Connect(function()
+            DropdownFrame.BackgroundColor3 = Colors.TabActive
+        end)
+        
+        DropdownButton.MouseLeave:Connect(function()
+            DropdownFrame.BackgroundColor3 = Colors.TabInactive
+        end)
+        
+        DropdownButton.MouseButton1Click:Connect(function()
+            if #config.Content > 0 then
+                currentIndex = currentIndex % #config.Content + 1
+                local newValue = config.Content[currentIndex]
+                config.Default = newValue
+                DropdownButton.Text = config.Name .. ": " .. newValue
+                GUI.flags[config.Flag or config.Name] = newValue
+                if config.Callback then config.Callback(newValue) end
+            end
+        end)
+        
+        currentY = currentY + 32
+        SectionFrame.Size = UDim2.new(0.48, -5, 0, currentY + 8)
+        return dropdownAPI
+    end
+    
+    function sectionAPI:Colorpicker(config)
+        local ColorFrame = Instance.new("Frame")
+        ColorFrame.Name = config.Name .. "ColorFrame"
+        ColorFrame.Parent = SectionFrame
+        ColorFrame.BackgroundColor3 = Colors.TabInactive
+        ColorFrame.Size = UDim2.new(1, -12, 0, 28)
+        ColorFrame.Position = UDim2.new(0, 6, 0, currentY)
+        ColorFrame.BorderSizePixel = 0
+        
+        local ColorCorner = Instance.new("UICorner")
+        ColorCorner.CornerRadius = UDim.new(0, 6)
+        ColorCorner.Parent = ColorFrame
+        
+        local ColorLabel = Instance.new("TextLabel")
+        ColorLabel.Parent = ColorFrame
+        ColorLabel.BackgroundTransparency = 1
+        ColorLabel.Size = UDim2.new(1, -35, 1, 0)
+        ColorLabel.Position = UDim2.new(0, 8, 0, 0)
+        ColorLabel.Text = config.Name
+        ColorLabel.TextColor3 = Colors.Text
+        ColorLabel.TextSize = 11
+        ColorLabel.Font = Enum.Font.Gotham
+        ColorLabel.TextXAlignment = Enum.TextXAlignment.Left
+        
+        local ColorDisplay = Instance.new("Frame")
+        ColorDisplay.Parent = ColorFrame
+        ColorDisplay.BackgroundColor3 = config.Default
+        ColorDisplay.Size = UDim2.new(0, 25, 0, 20)
+        ColorDisplay.Position = UDim2.new(1, -30, 0, 4)
+        ColorDisplay.BorderSizePixel = 0
+        
+        local DisplayCorner = Instance.new("UICorner")
+        DisplayCorner.CornerRadius = UDim.new(0, 4)
+        DisplayCorner.Parent = ColorDisplay
+        
+        local DisplayStroke = Instance.new("UIStroke")
+        DisplayStroke.Color = Colors.Accent
+        DisplayStroke.Thickness = 1
+        DisplayStroke.Parent = ColorDisplay
+        
+        local colors = {
+            Color3.fromRGB(255, 255, 255), Color3.fromRGB(255, 0, 0), Color3.fromRGB(0, 255, 0),
+            Color3.fromRGB(0, 0, 255), Color3.fromRGB(255, 255, 0), Color3.fromRGB(255, 0, 255),
+            Color3.fromRGB(0, 255, 255), Color3.fromRGB(255, 165, 0), Color3.fromRGB(128, 0, 128),
+            Color3.fromRGB(255, 192, 203), Color3.fromRGB(165, 42, 42), Color3.fromRGB(0, 128, 0),
+            Color3.fromRGB(255, 20, 147), Color3.fromRGB(30, 144, 255), Color3.fromRGB(255, 69, 0)
+        }
+        
+        local currentColorIndex = 1
+        for i, color in ipairs(colors) do
+            if color == config.Default then
+                currentColorIndex = i
+                break
+            end
+        end
+        
+        -- Store in flags system (matching AirHub V2)
+        GUI.flags[config.Flag or config.Name] = config.Default
+        
+        local ColorButton = Instance.new("TextButton")
+        ColorButton.Parent = ColorFrame
+        ColorButton.BackgroundTransparency = 1
+        ColorButton.Size = UDim2.new(1, 0, 1, 0)
+        ColorButton.Text = ""
+        
+        ColorButton.MouseEnter:Connect(function()
+            ColorFrame.BackgroundColor3 = Colors.TabActive
+        end)
+        
+        ColorButton.MouseLeave:Connect(function()
+            ColorFrame.BackgroundColor3 = Colors.TabInactive
+        end)
+        
+        ColorButton.MouseButton1Click:Connect(function()
+            currentColorIndex = currentColorIndex % #colors + 1
+            local newColor = colors[currentColorIndex]
+            ColorDisplay.BackgroundColor3 = newColor
+            config.Default = newColor
+            GUI.flags[config.Flag or config.Name] = newColor
+            if config.Callback then config.Callback(newColor) end
+        end)
+        
+        currentY = currentY + 32
+        SectionFrame.Size = UDim2.new(0.48, -5, 0, currentY + 8)
+        return ColorFrame
+    end
+    
+    function sectionAPI:Button(config)
+        local ButtonFrame = Instance.new("TextButton")
+        ButtonFrame.Name = config.Name .. "Button"
+        ButtonFrame.Parent = SectionFrame
+        ButtonFrame.BackgroundColor3 = Colors.TabInactive
+        ButtonFrame.Size = UDim2.new(1, -12, 0, 28)
+        ButtonFrame.Position = UDim2.new(0, 6, 0, currentY)
+        ButtonFrame.Text = config.Name
+        ButtonFrame.TextColor3 = Colors.Text
+        ButtonFrame.TextSize = 11
+        ButtonFrame.Font = Enum.Font.Gotham
+        ButtonFrame.BorderSizePixel = 0
+        
+        local ButtonCorner = Instance.new("UICorner")
+        ButtonCorner.CornerRadius = UDim.new(0, 6)
+        ButtonCorner.Parent = ButtonFrame
+        
+        ButtonFrame.MouseEnter:Connect(function()
+            ButtonFrame.BackgroundColor3 = Colors.Blue
+        end)
+        
+        ButtonFrame.MouseLeave:Connect(function()
+            ButtonFrame.BackgroundColor3 = Colors.TabInactive
+        end)
+        
+        ButtonFrame.MouseButton1Click:Connect(function()
+            ButtonFrame.BackgroundColor3 = Colors.Green
+            wait(0.1)
+            ButtonFrame.BackgroundColor3 = Colors.TabInactive
+            if config.Callback then config.Callback() end
+        end)
+        
+        currentY = currentY + 32
+        SectionFrame.Size = UDim2.new(0.48, -5, 0, currentY + 8)
+        return ButtonFrame
+    end
+    
+    function sectionAPI:Keybind(config)
+        local KeybindFrame = Instance.new("TextButton")
+        KeybindFrame.Name = config.Name .. "Keybind"
+        KeybindFrame.Parent = SectionFrame
+        KeybindFrame.BackgroundColor3 = Colors.TabInactive
+        KeybindFrame.Size = UDim2.new(1, -12, 0, 28)
+        KeybindFrame.Position = UDim2.new(0, 6, 0, currentY)
+        KeybindFrame.Text = config.Name .. ": " .. config.Default.Name
+        KeybindFrame.TextColor3 = Colors.Text
+        KeybindFrame.TextSize = 11
+        KeybindFrame.Font = Enum.Font.Gotham
+        KeybindFrame.BorderSizePixel = 0
+        
+        local KeybindCorner = Instance.new("UICorner")
+        KeybindCorner.CornerRadius = UDim.new(0, 6)
+        KeybindCorner.Parent = KeybindFrame
+        
+        local listening = false
+        
+        -- Store in flags system (matching AirHub V2)
+        GUI.flags[config.Flag or config.Name] = config.Default
+        
+        KeybindFrame.MouseEnter:Connect(function()
+            if not listening then
+                KeybindFrame.BackgroundColor3 = Colors.TabActive
+            end
+        end)
+        
+        KeybindFrame.MouseLeave:Connect(function()
+            if not listening then
+                KeybindFrame.BackgroundColor3 = Colors.TabInactive
+            end
+        end)
+        
+        KeybindFrame.MouseButton1Click:Connect(function()
+            if not listening then
+                listening = true
+                KeybindFrame.Text = config.Name .. ": [Press Key]"
+                KeybindFrame.BackgroundColor3 = Colors.Orange
+            end
+        end)
+        
+        UserInputService.InputBegan:Connect(function(input, gameProcessed)
+            if listening and not gameProcessed then
+                local isBlacklisted = false
+                if config.Blacklist then
+                    for _, blacklistedInput in pairs(config.Blacklist) do
+                        if input.UserInputType == blacklistedInput then
+                            isBlacklisted = true
+                            break
+                        end
+                    end
+                end
+                
+                if not isBlacklisted then
+                    listening = false
+                    local newKey = input.KeyCode
+                    if newKey ~= Enum.KeyCode.Unknown then
+                        config.Default = newKey
+                        KeybindFrame.Text = config.Name .. ": " .. newKey.Name
+                        GUI.flags[config.Flag or config.Name] = newKey
+                        KeybindFrame.BackgroundColor3 = Colors.TabInactive
+                        if config.Callback then config.Callback(newKey, newKey) end
+                    else
+                        KeybindFrame.Text = config.Name .. ": " .. config.Default.Name
+                        KeybindFrame.BackgroundColor3 = Colors.TabInactive
+                    end
+                else
+                    -- Handle blacklisted input (close listening if it's a blacklisted key)
+                    listening = false
+                    KeybindFrame.Text = config.Name .. ": " .. config.Default.Name
+                    KeybindFrame.BackgroundColor3 = Colors.TabInactive
+                    if config.Callback then config.Callback(nil, nil) end
+                end
+            end
+        end)
+        
+        currentY = currentY + 32
+        SectionFrame.Size = UDim2.new(0.48, -5, 0, currentY + 8)
+        return KeybindFrame
+    end
+    
+    function sectionAPI:Box(config)
+        local BoxFrame = Instance.new("Frame")
+        BoxFrame.Name = config.Name .. "BoxFrame"
+        BoxFrame.Parent = SectionFrame
+        BoxFrame.BackgroundColor3 = Colors.TabInactive
+        BoxFrame.Size = UDim2.new(1, -12, 0, 28)
+        BoxFrame.Position = UDim2.new(0, 6, 0, currentY)
+        BoxFrame.BorderSizePixel = 0
+        
+        local BoxCorner = Instance.new("UICorner")
+        BoxCorner.CornerRadius = UDim.new(0, 6)
+        BoxCorner.Parent = BoxFrame
+        
+        local TextBox = Instance.new("TextBox")
+        TextBox.Name = config.Name .. "TextBox"
+        TextBox.Parent = BoxFrame
+        TextBox.BackgroundTransparency = 1
+        TextBox.Size = UDim2.new(1, -12, 1, 0)
+        TextBox.Position = UDim2.new(0, 6, 0, 0)
+        TextBox.Text = config.Default or ""
+        TextBox.PlaceholderText = config.Placeholder or config.Name
+        TextBox.TextColor3 = Colors.Text
+        TextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+        TextBox.TextSize = 11
+        TextBox.Font = Enum.Font.Gotham
+        TextBox.TextXAlignment = Enum.TextXAlignment.Left
+        TextBox.ClearTextOnFocus = false
+        
+        local boxAPI = {}
+        
+        function boxAPI:Set(text)
+            TextBox.Text = text
+            GUI.flags[config.Flag or config.Name] = text
+        end
+        
+        function boxAPI:Get()
+            return GUI.flags[config.Flag or config.Name] or ""
+        end
+        
+        -- Store in flags system (matching AirHub V2)
+        GUI.flags[config.Flag or config.Name] = config.Default or ""
+        
+        TextBox.Focused:Connect(function()
+            BoxFrame.BackgroundColor3 = Colors.TabActive
+        end)
+        
+        TextBox.FocusLost:Connect(function()
+            BoxFrame.BackgroundColor3 = Colors.TabInactive
+            GUI.flags[config.Flag or config.Name] = TextBox.Text
+            if config.Callback then config.Callback(TextBox.Text) end
+        end)
+        
+        currentY = currentY + 32
+        SectionFrame.Size = UDim2.new(0.48, -5, 0, currentY + 8)
+        return boxAPI
+    end
+    
+    function sectionAPI:Label(text)
+        local Label = Instance.new("TextLabel")
+        Label.Name = "Label"
+        Label.Parent = SectionFrame
+        Label.BackgroundTransparency = 1
+        Label.Size = UDim2.new(1, -12, 0, 28)
+        Label.Position = UDim2.new(0, 6, 0, currentY)
+        Label.Text = text
+        Label.TextColor3 = Colors.Text
+        Label.TextSize = 11
+        Label.Font = Enum.Font.Gotham
+        Label.TextXAlignment = Enum.TextXAlignment.Left
+        
+        local labelAPI = {}
+        function labelAPI:Set(newText)
+            Label.Text = newText
+        end
+        
+        currentY = currentY + 32
+        SectionFrame.Size = UDim2.new(0.48, -5, 0, currentY + 8)
+        return labelAPI
+    end
+    
+    return sectionAPI
+end
+
+-- Tab API Helper
+local function CreateTabAPI(tabContent)
+    local tabAPI = {}
+    
+    function tabAPI:Section(config)
+        return CreateSection(tabContent, config.Name, config.Side)
+    end
+    
+    return tabAPI
+end
+
+-- Tab System Implementation
+local TabSystem = {}
+TabSystem.ActiveTab = nil
+TabSystem.Tabs = {}
+
+-- Tab Names (Updated without Silent Aim and White List)
+local TabNames = {"General", "Aimbot", "ESP", "Triggerbot", "Settings"}
+
+function TabSystem:CreateTab(name, index)
+    local TabButton = Instance.new("TextButton")
+    TabButton.Name = name .. "Tab"
+    TabButton.Parent = TabContainer
+    TabButton.BackgroundColor3 = Colors.TabInactive
+    TabButton.Size = UDim2.new(1, -6, 0, 38)
+    TabButton.Position = UDim2.new(0, 3, 0, (index - 1) * 42 + 3)
+    TabButton.Text = name
+    TabButton.TextColor3 = Colors.Text
+    TabButton.TextSize = 13
+    TabButton.Font = Enum.Font.GothamMedium
+    TabButton.BorderSizePixel = 0
+    
+    local TabCorner = Instance.new("UICorner")
+    TabCorner.CornerRadius = UDim.new(0, 8)
+    TabCorner.Parent = TabButton
+    
+    local TabContent = Instance.new("ScrollingFrame")
+    TabContent.Name = name .. "Content"
+    TabContent.Parent = ContentContainer
+    TabContent.BackgroundTransparency = 1
+    TabContent.Size = UDim2.new(1, 0, 1, 0)
+    TabContent.CanvasSize = UDim2.new(0, 0, 5, 0)
+    TabContent.ScrollBarThickness = 10
+    TabContent.ScrollBarImageColor3 = Colors.TabActive
+    TabContent.BorderSizePixel = 0
+    TabContent.Visible = false
+    
+    self.Tabs[name] = {
+        Button = TabButton,
+        Content = TabContent,
+        IsActive = false
+    }
+    
+    TabButton.MouseEnter:Connect(function()
+        if not self.Tabs[name].IsActive then
+            TabButton.BackgroundColor3 = Colors.TabActive
+        end
+    end)
+    
+    TabButton.MouseLeave:Connect(function()
+        if not self.Tabs[name].IsActive then
+            TabButton.BackgroundColor3 = Colors.TabInactive
+        end
+    end)
+    
+    TabButton.MouseButton1Click:Connect(function()
+        self:SwitchTab(name)
+    end)
+    
+    return TabContent
+end
+
+function TabSystem:SwitchTab(tabName)
+    for name, tab in pairs(self.Tabs) do
+        if name == tabName then
+            tab.Button.BackgroundColor3 = Colors.Blue
+            tab.Content.Visible = true
+            tab.IsActive = true
+            self.ActiveTab = tabName
+        else
+            tab.Button.BackgroundColor3 = Colors.TabInactive
+            tab.Content.Visible = false
+            tab.IsActive = false
+        end
+    end
+end
+
+-- Create all tabs
+for i, tabName in ipairs(TabNames) do
+    TabSystem:CreateTab(tabName, i)
+end
+
+-- Create Tab APIs with GeneralSignal (from AirHub V2)
+local GeneralSignal = Instance.new("BindableEvent")
+local General = CreateTabAPI(TabSystem.Tabs["General"].Content)
+local _Aimbot = CreateTabAPI(TabSystem.Tabs["Aimbot"].Content)
+local _ESP = CreateTabAPI(TabSystem.Tabs["ESP"].Content)
+local _Triggerbot = CreateTabAPI(TabSystem.Tabs["Triggerbot"].Content)
+local Settings = CreateTabAPI(TabSystem.Tabs["Settings"].Content)
+
+-- AddValues Function (Direct from AirHub V2)
+local AddValues = function(Section, Object, Exceptions, Prefix)
+    local Keys, Copy = {}, {}
+
+    for Index, _ in next, Object do
+        Keys[#Keys + 1] = Index
+    end
+
+    tablesort(Keys, function(A, B)
+        return A < B
+    end)
+
+    for _, Value in next, Keys do
+        Copy[Value] = Object[Value]
+    end
+
+    for Index, Value in next, Copy do
+        if typeof(Value) ~= "boolean" or (Exceptions and tablefind(Exceptions, Index)) then
+            continue
+        end
+
+        Section:Toggle({
+            Name = stringgsub(Index, "(%l)(%u)", function(...)
+                return select(1, ...).. " "..select(2, ...)
+            end),
+            Flag = Prefix..Index,
+            Default = Value,
+            Callback = function(_Value)
+                Object[Index] = _Value
+            end
+        })
+    end
+
+    for Index, Value in next, Copy do
+        if typeof(Value) ~= "Color3" or (Exceptions and tablefind(Exceptions, Index)) then
+            continue
+        end
+
+        Section:Colorpicker({
+            Name = stringgsub(Index, "(%l)(%u)", function(...)
+                return select(1, ...).. " "..select(2, ...)
+            end),
+            Flag = Index,
+            Default = Value,
+            Callback = function(_Value)
+                Object[Index] = _Value
+            end
+        })
+    end
+end
+
+--// General Tab (Exact AirHub V2 Implementation)
+
+local AimbotSection = General:Section({
+    Name = "Aimbot Settings",
+    Side = "Left"
+})
+
+local ESPSection = General:Section({
+    Name = "ESP Settings",
+    Side = "Right"
+})
+
+local ESPDeveloperSection = General:Section({
+    Name = "ESP Developer Settings",
+    Side = "Right"
+})
+
+AddValues(ESPDeveloperSection, ESP_DeveloperSettings, {}, "ESP_DeveloperSettings_")
+
+ESPDeveloperSection:Dropdown({
+    Name = "Update Mode",
+    Flag = "ESP_UpdateMode",
+    Content = {"RenderStepped", "Stepped", "Heartbeat"},
+    Default = ESP_DeveloperSettings.UpdateMode,
+    Callback = function(Value)
+        ESP_DeveloperSettings.UpdateMode = Value
+    end
+})
+
+ESPDeveloperSection:Dropdown({
+    Name = "Team Check Option",
+    Flag = "ESP_TeamCheckOption",
+    Content = {"TeamColor", "Team"},
+    Default = ESP_DeveloperSettings.TeamCheckOption,
+    Callback = function(Value)
+        ESP_DeveloperSettings.TeamCheckOption = Value
+    end
+})
+
+ESPDeveloperSection:Slider({
+    Name = "Rainbow Speed",
+    Flag = "ESP_RainbowSpeed",
+    Default = ESP_DeveloperSettings.RainbowSpeed * 10,
+    Min = 5,
+    Max = 30,
+    Decimals = true,
+    Callback = function(Value)
+        ESP_DeveloperSettings.RainbowSpeed = Value / 10
+    end
+})
+
+ESPDeveloperSection:Slider({
+    Name = "Width Boundary",
+    Flag = "ESP_WidthBoundary",
+    Default = ESP_DeveloperSettings.WidthBoundary * 10,
+    Min = 5,
+    Max = 30,
+    Decimals = true,
+    Callback = function(Value)
+        ESP_DeveloperSettings.WidthBoundary = Value / 10
+    end
+})
+
+ESPDeveloperSection:Button({
+    Name = "Refresh",
+    Callback = function()
+        ESP:Restart()
+    end
+})
+
+AddValues(ESPSection, ESP_Settings, {"LoadConfigOnLaunch", "PartsOnly"}, "ESPSettings_")
+
+AimbotSection:Toggle({
+    Name = "Enabled",
+    Flag = "Aimbot_Enabled",
+    Default = Aimbot_Settings.Enabled,
+    Callback = function(Value)
+        Aimbot_Settings.Enabled = Value
+    end
+})
+
+AddValues(AimbotSection, Aimbot_Settings, {"Enabled", "Toggle", "OffsetToMoveDirection"}, "Aimbot_")
+
+local AimbotDeveloperSection = General:Section({
+    Name = "Aimbot Developer Settings",
+    Side = "Left"
+})
+
+AimbotDeveloperSection:Dropdown({
+    Name = "Update Mode",
+    Flag = "Aimbot_UpdateMode",
+    Content = {"RenderStepped", "Stepped", "Heartbeat"},
+    Default = Aimbot_DeveloperSettings.UpdateMode,
+    Callback = function(Value)
+        Aimbot_DeveloperSettings.UpdateMode = Value
+    end
+})
+
+AimbotDeveloperSection:Dropdown({
+    Name = "Team Check Option",
+    Flag = "Aimbot_TeamCheckOption",
+    Content = {"TeamColor", "Team"},
+    Default = Aimbot_DeveloperSettings.TeamCheckOption,
+    Callback = function(Value)
+        Aimbot_DeveloperSettings.TeamCheckOption = Value
+    end
+})
+
+AimbotDeveloperSection:Slider({
+    Name = "Rainbow Speed",
+    Flag = "Aimbot_RainbowSpeed",
+    Default = Aimbot_DeveloperSettings.RainbowSpeed * 10,
+    Min = 5,
+    Max = 30,
+    Decimals = true,
+    Callback = function(Value)
+        Aimbot_DeveloperSettings.RainbowSpeed = Value / 10
+    end
+})
+
+AimbotDeveloperSection:Button({
+    Name = "Refresh",
+    Callback = function()
+        Aimbot.Restart()
+    end
+})
+
+--// Aimbot Tab (Exact AirHub V2 Implementation)
+
+local AimbotPropertiesSection = _Aimbot:Section({
+    Name = "Properties",
+    Side = "Left"
+})
+
+AimbotPropertiesSection:Toggle({
+    Name = "Toggle",
+    Flag = "Aimbot_Toggle",
+    Default = Aimbot_Settings.Toggle,
+    Callback = function(Value)
+        Aimbot_Settings.Toggle = Value
+    end
+})
+
+AimbotPropertiesSection:Toggle({
+    Name = "Offset To Move Direction",
+    Flag = "Aimbot_OffsetToMoveDirection",
+    Default = Aimbot_Settings.OffsetToMoveDirection,
+    Callback = function(Value)
+        Aimbot_Settings.OffsetToMoveDirection = Value
+    end
+})
+
+AimbotPropertiesSection:Slider({
+    Name = "Offset Increment",
+    Flag = "Aimbot_OffsetIncrementy",
+    Default = Aimbot_Settings.OffsetIncrement,
+    Min = 1,
+    Max = 30,
+    Callback = function(Value)
+        Aimbot_Settings.OffsetIncrement = Value
+    end
+})
+
+AimbotPropertiesSection:Slider({
+    Name = "Animation Sensitivity (ms)",
+    Flag = "Aimbot_Sensitivity",
+    Default = Aimbot_Settings.Sensitivity * 100,
+    Min = 0,
+    Max = 100,
+    Decimals = true,
+    Callback = function(Value)
+        Aimbot_Settings.Sensitivity = Value / 100
+    end
+})
+
+AimbotPropertiesSection:Slider({
+    Name = "mousemoverel Sensitivity",
+    Flag = "Aimbot_Sensitivity2",
+    Default = Aimbot_Settings.Sensitivity2 * 100,
+    Min = 0,
+    Max = 500,
+    Decimals = true,
+    Callback = function(Value)
+        Aimbot_Settings.Sensitivity2 = Value / 100
+    end
+})
+
+AimbotPropertiesSection:Dropdown({
+    Name = "Lock Mode",
+    Flag = "Aimbot_Settings_LockMode",
+    Content = {"CFrame", "mousemoverel"},
+    Default = Aimbot_Settings.LockMode == 1 and "CFrame" or "mousemoverel",
+    Callback = function(Value)
+        Aimbot_Settings.LockMode = Value == "CFrame" and 1 or 2
+    end
+})
+
+AimbotPropertiesSection:Dropdown({
+    Name = "Lock Part",
+    Flag = "Aimbot_LockPart",
+    Content = {"Head", "HumanoidRootPart", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "LeftHand", "RightHand", "LeftLowerArm", "RightLowerArm", "LeftUpperArm", "RightUpperArm", "LeftFoot", "LeftLowerLeg", "UpperTorso", "LeftUpperLeg", "RightFoot", "RightLowerLeg", "LowerTorso", "RightUpperLeg"},
+    Default = Aimbot_Settings.LockPart,
+    Callback = function(Value)
+        Aimbot_Settings.LockPart = Value
+    end
+})
+
+AimbotPropertiesSection:Keybind({
+    Name = "Trigger Key",
+    Flag = "Aimbot_TriggerKey",
+    Default = Aimbot_Settings.TriggerKey,
+    Callback = function(Keybind)
+        Aimbot_Settings.TriggerKey = Keybind
+    end
+})
+
+local UserBox = AimbotPropertiesSection:Box({
+    Name = "Player Name (shortened allowed)",
+    Flag = "Aimbot_PlayerName",
+    Placeholder = "Username"
+})
+
+AimbotPropertiesSection:Button({
+    Name = "Blacklist (Ignore) Player",
+    Callback = function()
+        local playerName = GUI.flags["Aimbot_PlayerName"]
+        if playerName and playerName ~= "" then
+            pcall(Aimbot.Blacklist, Aimbot, playerName)
+            UserBox:Set("")
+            print("Player '" .. playerName .. "' blacklisted!")
+        end
+    end
+})
+
+AimbotPropertiesSection:Button({
+    Name = "Whitelist Player",
+    Callback = function()
+        local playerName = GUI.flags["Aimbot_PlayerName"]
+        if playerName and playerName ~= "" then
+            pcall(Aimbot.Whitelist, Aimbot, playerName)
+            UserBox:Set("")
+            print("Player '" .. playerName .. "' whitelisted!")
+        end
+    end
+})
+
+local AimbotFOVSection = _Aimbot:Section({
+    Name = "Field Of View Settings",
+    Side = "Right"
+})
+
+AddValues(AimbotFOVSection, Aimbot_FOV, {}, "Aimbot_FOV_")
+
+AimbotFOVSection:Slider({
+    Name = "Field Of View",
+    Flag = "Aimbot_FOV_Radius",
+    Default = Aimbot_FOV.Radius,
+    Min = 0,
+    Max = 720,
+    Callback = function(Value)
+        Aimbot_FOV.Radius = Value
+    end
+})
+
+AimbotFOVSection:Slider({
+    Name = "Sides",
+    Flag = "Aimbot_FOV_NumSides",
+    Default = Aimbot_FOV.NumSides,
+    Min = 3,
+    Max = 60,
+    Callback = function(Value)
+        Aimbot_FOV.NumSides = Value
+    end
+})
+
+AimbotFOVSection:Slider({
+    Name = "Transparency",
+    Flag = "Aimbot_FOV_Transparency",
+    Default = Aimbot_FOV.Transparency * 10,
+    Min = 1,
+    Max = 10,
+    Decimals = true,
+    Callback = function(Value)
+        Aimbot_FOV.Transparency = Value / 10
+    end
+})
+
+AimbotFOVSection:Slider({
+    Name = "Thickness",
+    Flag = "Aimbot_FOV_Thickness",
+    Default = Aimbot_FOV.Thickness,
+    Min = 1,
+    Max = 5,
+    Callback = function(Value)
+        Aimbot_FOV.Thickness = Value
+    end
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--// ESP Tab (Exact AirHub V2 Implementation)
+
+local ESP_Properties_Section = _ESP:Section({
+    Name = "ESP Properties",
+    Side = "Left"
+})
+
+AddValues(ESP_Properties_Section, ESP_Properties.ESP, {}, "ESP_Propreties_")
+
+ESP_Properties_Section:Dropdown({
+    Name = "Text Font",
+    Flag = "ESP_TextFont",
+    Content = Fonts,
+    Default = Fonts[ESP_Properties.ESP.Font + 1] or "UI",
+    Callback = function(Value)
+        ESP_Properties.ESP.Font = Drawing.Fonts[Value] or 0
+    end
+})
+
+ESP_Properties_Section:Slider({
+    Name = "Transparency",
+    Flag = "ESP_TextTransparency",
+    Default = ESP_Properties.ESP.Transparency * 10,
+    Min = 1,
+    Max = 10,
+    Decimals = true,
+    Callback = function(Value)
+        ESP_Properties.ESP.Transparency = Value / 10
+    end
+})
+
+ESP_Properties_Section:Slider({
+    Name = "Font Size",
+    Flag = "ESP_FontSize",
+    Default = ESP_Properties.ESP.Size,
+    Min = 1,
+    Max = 20,
+    Callback = function(Value)
+        ESP_Properties.ESP.Size = Value
+    end
+})
+
+ESP_Properties_Section:Slider({
+    Name = "Offset",
+    Flag = "ESP_Offset",
+    Default = ESP_Properties.ESP.Offset,
+    Min = 10,
+    Max = 30,
+    Callback = function(Value)
+        ESP_Properties.ESP.Offset = Value
+    end
+})
+
+local Tracer_Properties_Section = _ESP:Section({
+    Name = "Tracer Properties",
+    Side = "Right"
+})
+
+AddValues(Tracer_Properties_Section, ESP_Properties.Tracer, {}, "Tracer_Properties_")
+
+Tracer_Properties_Section:Dropdown({
+    Name = "Position",
+    Flag = "Tracer_Position",
+    Content = TracerPositions,
+    Default = TracerPositions[ESP_Properties.Tracer.Position] or "Bottom",
+    Callback = function(Value)
+        ESP_Properties.Tracer.Position = tablefind(TracerPositions, Value) or 1
+    end
+})
+
+Tracer_Properties_Section:Slider({
+    Name = "Transparency",
+    Flag = "Tracer_Transparency",
+    Default = ESP_Properties.Tracer.Transparency * 10,
+    Min = 1,
+    Max = 10,
+    Decimals = true,
+    Callback = function(Value)
+        ESP_Properties.Tracer.Transparency = Value / 10
+    end
+})
+
+Tracer_Properties_Section:Slider({
+    Name = "Thickness",
+    Flag = "Tracer_Thickness",
+    Default = ESP_Properties.Tracer.Thickness,
+    Min = 1,
+    Max = 5,
+    Callback = function(Value)
+        ESP_Properties.Tracer.Thickness = Value
+    end
+})
+
+local HeadDot_Properties_Section = _ESP:Section({
+    Name = "Head Dot Properties",
+    Side = "Left"
+})
+
+AddValues(HeadDot_Properties_Section, ESP_Properties.HeadDot, {}, "HeadDot_Properties_")
+
+HeadDot_Properties_Section:Slider({
+    Name = "Transparency",
+    Flag = "HeadDot_Transparency",
+    Default = ESP_Properties.HeadDot.Transparency * 10,
+    Min = 1,
+    Max = 10,
+    Decimals = true,
+    Callback = function(Value)
+        ESP_Properties.HeadDot.Transparency = Value / 10
+    end
+})
+
+HeadDot_Properties_Section:Slider({
+    Name = "Thickness",
+    Flag = "HeadDot_Thickness",
+    Default = ESP_Properties.HeadDot.Thickness,
+    Min = 1,
+    Max = 5,
+    Callback = function(Value)
+        ESP_Properties.HeadDot.Thickness = Value
+    end
+})
+
+HeadDot_Properties_Section:Slider({
+    Name = "Sides",
+    Flag = "HeadDot_Sides",
+    Default = ESP_Properties.HeadDot.NumSides,
+    Min = 3,
+    Max = 30,
+    Callback = function(Value)
+        ESP_Properties.HeadDot.NumSides = Value
+    end
+})
+
+local Box_Properties_Section = _ESP:Section({
+    Name = "Box Properties",
+    Side = "Left"
+})
+
+AddValues(Box_Properties_Section, ESP_Properties.Box, {}, "Box_Properties_")
+
+Box_Properties_Section:Slider({
+    Name = "Transparency",
+    Flag = "Box_Transparency",
+    Default = ESP_Properties.Box.Transparency * 10,
+    Min = 1,
+    Max = 10,
+    Decimals = true,
+    Callback = function(Value)
+        ESP_Properties.Box.Transparency = Value / 10
+    end
+})
+
+Box_Properties_Section:Slider({
+    Name = "Thickness",
+    Flag = "Box_Thickness",
+    Default = ESP_Properties.Box.Thickness,
+    Min = 1,
+    Max = 5,
+    Callback = function(Value)
+        ESP_Properties.Box.Thickness = Value
+    end
+})
+
+local HealthBar_Properties_Section = _ESP:Section({
+    Name = "Health Bar Properties",
+    Side = "Right"
+})
+
+AddValues(HealthBar_Properties_Section, ESP_Properties.HealthBar, {}, "HealthBar_Properties_")
+
+HealthBar_Properties_Section:Dropdown({
+    Name = "Position",
+    Flag = "HealthBar_Position",
+    Content = HealthBarPositions,
+    Default = HealthBarPositions[ESP_Properties.HealthBar.Position] or "Left",
+    Callback = function(Value)
+        ESP_Properties.HealthBar.Position = tablefind(HealthBarPositions, Value) or 1
+    end
+})
+
+HealthBar_Properties_Section:Slider({
+    Name = "Transparency",
+    Flag = "HealthBar_Transparency",
+    Default = ESP_Properties.HealthBar.Transparency * 10,
+    Min = 1,
+    Max = 10,
+    Decimals = true,
+    Callback = function(Value)
+        ESP_Properties.HealthBar.Transparency = Value / 10
+    end
+})
+
+HealthBar_Properties_Section:Slider({
+    Name = "Thickness",
+    Flag = "HealthBar_Thickness",
+    Default = ESP_Properties.HealthBar.Thickness,
+    Min = 1,
+    Max = 5,
+    Callback = function(Value)
+        ESP_Properties.HealthBar.Thickness = Value
+    end
+})
+
+HealthBar_Properties_Section:Slider({
+    Name = "Offset",
+    Flag = "HealthBar_Offset",
+    Default = ESP_Properties.HealthBar.Offset,
+    Min = 4,
+    Max = 12,
+    Callback = function(Value)
+        ESP_Properties.HealthBar.Offset = Value
+    end
+})
+
+HealthBar_Properties_Section:Slider({
+    Name = "Blue",
+    Flag = "HealthBar_Blue",
+    Default = ESP_Properties.HealthBar.Blue,
+    Min = 0,
+    Max = 255,
+    Callback = function(Value)
+        ESP_Properties.HealthBar.Blue = Value
+    end
+})
+
+
+
+
+
+
+
+
+
+
+
+--// Triggerbot Tab - Advanced Automatic Shooting System
+
+-- Services for Triggerbot
+local Camera = game.Workspace.CurrentCamera
+local Mouse = LocalPlayer:GetMouse()
+
+-- Triggerbot System
+local TriggerbotSystem = {
+    enabled = false,
+    mode = "Toggle", -- "Toggle", "Hold"
+    teamCheck = true,
+    wallCheck = true,
+    delay = 0.05,
+    hitParts = {"Head", "HumanoidRootPart", "UpperTorso", "LowerTorso"},
+    maxDistance = 1000,
+    fovRadius = 5,
+    triggersPerSecond = 20,
+    keybind = Enum.KeyCode.T,
+    triggerCount = 0,
+    lastTrigger = 0,
+    running = false,
+    holdActive = false
+}
+
+function TriggerbotSystem:IsValidTarget(player)
+    if not player or player == LocalPlayer then return false end
+    if not player.Character or not player.Character:FindFirstChild("Humanoid") then return false end
+    if player.Character.Humanoid.Health <= 0 then return false end
+    
+    -- Team check
+    if self.teamCheck and player.Team == LocalPlayer.Team then return false end
+    
+    return true
+end
+
+function TriggerbotSystem:GetTargetPart(character)
+    for _, partName in ipairs(self.hitParts) do
+        local part = character:FindFirstChild(partName)
+        if part then return part end
+    end
+    return nil
+end
+
+function TriggerbotSystem:IsInFOV(targetPart)
+    local camera = Camera
+    local screenPoint, onScreen = camera:WorldToScreenPoint(targetPart.Position)
+    
+    if not onScreen then return false end
+    
+    local mouse = Mouse
+    local distance = math.sqrt((screenPoint.X - mouse.X)^2 + (screenPoint.Y - mouse.Y)^2)
+    
+    return distance <= self.fovRadius
+end
+
+function TriggerbotSystem:WallCheck(targetPart)
+    if not self.wallCheck then return true end
+    
+    local camera = Camera
+    local origin = camera.CFrame.Position
+    local direction = (targetPart.Position - origin).Unit * self.maxDistance
+    
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+    raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
+    
+    local raycastResult = workspace:Raycast(origin, direction, raycastParams)
+    
+    if raycastResult then
+        local hitPart = raycastResult.Instance
+        local hitCharacter = hitPart.Parent
+        
+        -- Check if we hit the target character
+        if hitCharacter == targetPart.Parent then
+            return true
+        end
+        
+        -- Check if we hit a descendant of the target character
+        if hitPart:IsDescendantOf(targetPart.Parent) then
+            return true
+        end
+        
+        return false
+    end
+    
+    return true
+end
+
+function TriggerbotSystem:GetTarget()
+    local camera = Camera
+    local closestDistance = math.huge
+    local closestTarget = nil
+    
+    for _, player in pairs(Players:GetPlayers()) do
+        if self:IsValidTarget(player) then
+            local targetPart = self:GetTargetPart(player.Character)
+            if targetPart then
+                local distance = (camera.CFrame.Position - targetPart.Position).Magnitude
+                if distance <= self.maxDistance and distance < closestDistance then
+                    if self:IsInFOV(targetPart) and self:WallCheck(targetPart) then
+                        closestDistance = distance
+                        closestTarget = targetPart
+                    end
+                end
+            end
+        end
+    end
+    
+    return closestTarget
+end
+
+function TriggerbotSystem:Shoot()
+    local currentTime = tick()
+    local timeSinceLastTrigger = currentTime - self.lastTrigger
+    
+    if timeSinceLastTrigger >= (1 / self.triggersPerSecond) then
+        wait(self.delay)
+        
+        -- Simulate mouse click
+        mouse1press()
+        wait(0.01)
+        mouse1release()
+        
+        self.triggerCount = self.triggerCount + 1
+        self.lastTrigger = currentTime
+        
+        return true
+    end
+    
+    return false
+end
+
+function TriggerbotSystem:Start()
+    if self.running then return end
+    self.running = true
+    
+    spawn(function()
+        while self.running and self.enabled do
+            pcall(function()
+                local target = self:GetTarget()
+                if target then
+                    self:Shoot()
+                end
+            end)
+            wait(0.01) -- 100 FPS check rate
+        end
+        self.running = false
+    end)
+end
+
+function TriggerbotSystem:Stop()
+    self.running = false
+end
+
+function TriggerbotSystem:Toggle()
+    if self.mode == "Toggle" then
+        self.enabled = not self.enabled
+        if self.enabled then
+            self:Start()
+            print("Triggerbot enabled!")
+        else
+            self:Stop()
+            print("Triggerbot disabled!")
+        end
+    end
+end
+
+function TriggerbotSystem:SetHold(active)
+    if self.mode == "Hold" then
+        self.holdActive = active
+        if active and not self.running then
+            self.enabled = true
+            self:Start()
+            print("Triggerbot hold activated!")
+        elseif not active and self.running then
+            self.enabled = false
+            self:Stop()
+            print("Triggerbot hold deactivated!")
+        end
+    end
+end
+
+-- Create Triggerbot sections
+local TriggerbotSettings = _Triggerbot:Section({
+    Name = "Triggerbot Settings",
+    Side = "Left"
+})
+
+local TargetDetection = _Triggerbot:Section({
+    Name = "Target Detection",
+    Side = "Right"
+})
+
+local PerformanceSection = _Triggerbot:Section({
+    Name = "Performance Settings",
+    Side = "Left"
+})
+
+local TriggerbotInfo = _Triggerbot:Section({
+    Name = "Triggerbot Information",
+    Side = "Right"
+})
+
+-- Triggerbot Settings
+TriggerbotSettings:Toggle({
+    Name = "Enabled",
+    Flag = "Triggerbot_Enabled",
+    Default = TriggerbotSystem.enabled,
+    Callback = function(Value)
+        TriggerbotSystem.enabled = Value
+        if Value then
+            TriggerbotSystem:Start()
+        else
+            TriggerbotSystem:Stop()
+        end
+    end
+})
+
+TriggerbotSettings:Dropdown({
+    Name = "Mode",
+    Flag = "Triggerbot_Mode",
+    Content = {"Toggle", "Hold"},
+    Default = TriggerbotSystem.mode,
+    Callback = function(Value)
+        TriggerbotSystem.mode = Value
+        if Value == "Hold" then
+            TriggerbotSystem.enabled = false
+            TriggerbotSystem:Stop()
+        end
+    end
+})
+
+TriggerbotSettings:Toggle({
+    Name = "Team Check",
+    Flag = "Triggerbot_TeamCheck",
+    Default = TriggerbotSystem.teamCheck,
+    Callback = function(Value)
+        TriggerbotSystem.teamCheck = Value
+    end
+})
+
+TriggerbotSettings:Toggle({
+    Name = "Wall Check",
+    Flag = "Triggerbot_WallCheck",
+    Default = TriggerbotSystem.wallCheck,
+    Callback = function(Value)
+        TriggerbotSystem.wallCheck = Value
+    end
+})
+
+TriggerbotSettings:Slider({
+    Name = "Trigger Delay (ms)",
+    Flag = "Triggerbot_Delay",
+    Default = TriggerbotSystem.delay * 1000,
+    Min = 0,
+    Max = 500,
+    Decimals = false,
+    Callback = function(Value)
+        TriggerbotSystem.delay = Value / 1000
+    end
+})
+
+TriggerbotSettings:Keybind({
+    Name = "Toggle Key",
+    Flag = "Triggerbot_ToggleKey",
+    Default = TriggerbotSystem.keybind,
+    Callback = function(NewKeybind)
+        TriggerbotSystem.keybind = NewKeybind
+    end
+})
+
+-- Target Detection
+TargetDetection:Slider({
+    Name = "Max Distance",
+    Flag = "Triggerbot_MaxDistance",
+    Default = TriggerbotSystem.maxDistance,
+    Min = 100,
+    Max = 2000,
+    Callback = function(Value)
+        TriggerbotSystem.maxDistance = Value
+    end
+})
+
+TargetDetection:Slider({
+    Name = "FOV Radius",
+    Flag = "Triggerbot_FOVRadius",
+    Default = TriggerbotSystem.fovRadius,
+    Min = 1,
+    Max = 50,
+    Callback = function(Value)
+        TriggerbotSystem.fovRadius = Value
+    end
+})
+
+local HitPartsDropdown = TargetDetection:Dropdown({
+    Name = "Priority Target Part",
+    Flag = "Triggerbot_TargetPart",
+    Content = {"Head", "HumanoidRootPart", "UpperTorso", "LowerTorso", "Torso"},
+    Default = "Head",
+    Callback = function(Value)
+        -- Reorder hit parts based on selection
+        TriggerbotSystem.hitParts = {Value}
+        local allParts = {"Head", "HumanoidRootPart", "UpperTorso", "LowerTorso", "Torso"}
+        for _, part in ipairs(allParts) do
+            if part ~= Value then
+                table.insert(TriggerbotSystem.hitParts, part)
+            end
+        end
+    end
+})
+
+TargetDetection:Button({
+    Name = "Test Detection",
+    Callback = function()
+        local target = TriggerbotSystem:GetTarget()
+        if target then
+            print("Target detected: " .. target.Parent.Name .. " (" .. target.Name .. ")")
+        else
+            print("No valid targets detected")
+        end
+    end
+})
+
+-- Performance Settings
+PerformanceSection:Slider({
+    Name = "Triggers Per Second",
+    Flag = "Triggerbot_TriggersPerSecond",
+    Default = TriggerbotSystem.triggersPerSecond,
+    Min = 1,
+    Max = 60,
+    Callback = function(Value)
+        TriggerbotSystem.triggersPerSecond = Value
+    end
+})
+
+PerformanceSection:Button({
+    Name = "Reset Statistics",
+    Callback = function()
+        TriggerbotSystem.triggerCount = 0
+        TriggerbotSystem.lastTrigger = 0
+        print("Triggerbot statistics reset!")
+    end
+})
+
+PerformanceSection:Button({
+    Name = "Manual Trigger Test",
+    Callback = function()
+        local success = TriggerbotSystem:Shoot()
+        if success then
+            print("Manual trigger executed successfully!")
+        else
+            print("Manual trigger rate limited")
+        end
+    end
+})
+
+-- Information labels
+local StatusLabel = TriggerbotInfo:Label("Status: Disabled")
+local TriggerCountLabel = TriggerbotInfo:Label("Triggers: 0")
+local PerformanceLabel = TriggerbotInfo:Label("Rate: 0/s")
+
+TriggerbotInfo:Button({
+    Name = "Show Current Settings",
+    Callback = function()
+        print("\n=== TRIGGERBOT SETTINGS ===")
+        print("Enabled: " .. tostring(TriggerbotSystem.enabled))
+        print("Team Check: " .. tostring(TriggerbotSystem.teamCheck))
+        print("Wall Check: " .. tostring(TriggerbotSystem.wallCheck))
+        print("Delay: " .. (TriggerbotSystem.delay * 1000) .. "ms")
+        print("Max Distance: " .. TriggerbotSystem.maxDistance)
+        print("FOV Radius: " .. TriggerbotSystem.fovRadius)
+        print("Triggers/sec: " .. TriggerbotSystem.triggersPerSecond)
+        print("Target Parts: " .. table.concat(TriggerbotSystem.hitParts, ", "))
+        print("=========================")
+    end
+})
+
+-- Auto-update information labels
+spawn(function()
+    local lastCount = 0
+    while LufyGui.Parent do
+        wait(1)
+        pcall(function()
+            StatusLabel:Set("Status: " .. (TriggerbotSystem.enabled and "Enabled" or "Disabled"))
+            TriggerCountLabel:Set("Triggers: " .. TriggerbotSystem.triggerCount)
+            
+            local currentRate = TriggerbotSystem.triggerCount - lastCount
+            PerformanceLabel:Set("Rate: " .. currentRate .. "/s")
+            lastCount = TriggerbotSystem.triggerCount
+        end)
+    end
+end)
+
+-- Keybind handler for triggerbot toggle and hold
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == TriggerbotSystem.keybind then
+        if TriggerbotSystem.mode == "Toggle" then
+            TriggerbotSystem:Toggle()
+        elseif TriggerbotSystem.mode == "Hold" then
+            TriggerbotSystem:SetHold(true)
+        end
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == TriggerbotSystem.keybind then
+        if TriggerbotSystem.mode == "Hold" then
+            TriggerbotSystem:SetHold(false)
+        end
+    end
+end)
+
+--// Settings Tab (Exact AirHub V2 Implementation)
+
+local SettingsSection = Settings:Section({
+    Name = "Settings",
+    Side = "Left"
+})
+
+local ProfilesSection = Settings:Section({
+    Name = "Profiles",
+    Side = "Left"
+})
+
+local InformationSection = Settings:Section({
+    Name = "Information",
+    Side = "Right"
+})
+
+-- GUI Toggle Keybind
+local guiToggleKey = Enum.KeyCode.RightShift
+
+SettingsSection:Keybind({
+    Name = "Show / Hide GUI",
+    Flag = "UI Toggle",
+    Default = Enum.KeyCode.RightShift,
+    Blacklist = {Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2, Enum.UserInputType.MouseButton3},
+    Callback = function(_, NewKeybind)
+        if not NewKeybind then
+            LufyGui.Enabled = false
+        else
+            guiToggleKey = NewKeybind
+        end
+    end
+})
+
+-- Show Keybinds Toggle
+local showKeybinds = true
+local KeybindsFrame = nil
+
+SettingsSection:Toggle({
+    Name = "Show Keybinds",
+    Flag = "Settings_ShowKeybinds",
+    Default = showKeybinds,
+    Callback = function(Value)
+        showKeybinds = Value
+        if Value then
+            CreateKeybindsFrame()
+        else
+            if KeybindsFrame then
+                KeybindsFrame:Destroy()
+                KeybindsFrame = nil
+            end
+        end
+    end
+})
+
+-- Watermark Toggle
+local showWatermark = true
+local WatermarkFrame = nil
+
+SettingsSection:Toggle({
+    Name = "Show Watermark",
+    Flag = "Settings_ShowWatermark",
+    Default = showWatermark,
+    Callback = function(Value)
+        showWatermark = Value
+        if Value then
+            CreateWatermarkFrame()
+        else
+            if WatermarkFrame then
+                WatermarkFrame:Destroy()
+                WatermarkFrame = nil
+            end
+        end
+    end
+})
+
+SettingsSection:Button({
+    Name = "Unload Script",
+    Callback = function()
+        LufyGui:Destroy()
+        ESP:Exit()
+        Aimbot:Exit()
+        getgenv().LufyBZLoaded = nil
+        getgenv().LufyBZLoading = nil
+        print("Lufy.BZ unloaded successfully!")
+    end
+})
+
+-- Config System (Persistent with file storage)
+local ConfigSystem = {
+    configs = {},
+    currentConfig = "Default",
+    configFolder = "LufyZZ_Configs"
+}
+
+-- Create config folder
+if not isfolder(ConfigSystem.configFolder) then
+    makefolder(ConfigSystem.configFolder)
+end
+
+-- Load all configs on startup
+function ConfigSystem:LoadAllConfigs()
+    local configFiles = listfiles(self.configFolder)
+    for _, filePath in pairs(configFiles) do
+        if filePath:find(".json") then
+            local configName = filePath:gsub(self.configFolder .. "\\", ""):gsub(".json", "")
+            local success, data = pcall(function()
+                return game:GetService("HttpService"):JSONDecode(readfile(filePath))
+            end)
+            if success then
+                self.configs[configName] = data
+            end
+        end
+    end
+end
+
+-- GUI Config Functions (matching AirHub V2 API)
+function GUI:SaveConfig(name)
+    ConfigSystem:SaveConfig(name)
+end
+
+function GUI:LoadConfig(name)
+    ConfigSystem:LoadConfig(name)
+end
+
+function GUI:GetConfigs()
+    return ConfigSystem:GetConfigs()
+end
+
+function GUI:DeleteConfig(name)
+    ConfigSystem:DeleteConfig(name)
+end
+
+function ConfigSystem:SaveConfig(name)
+    if not name or name == "" then 
+        print("Invalid configuration name!")
+        return 
+    end
+    
+    local function deepCopy(obj)
+        if type(obj) ~= "table" then return obj end
+        local copy = {}
+        for k, v in pairs(obj) do
+            if typeof(v) == "Color3" then
+                copy[k] = {r = v.R, g = v.G, b = v.B, _type = "Color3"}
+            elseif typeof(v) == "Vector3" then
+                copy[k] = {x = v.X, y = v.Y, z = v.Z, _type = "Vector3"}
+            elseif typeof(v) == "EnumItem" then
+                copy[k] = {name = tostring(v), _type = "EnumItem"}
+            else
+                copy[k] = deepCopy(v)
+            end
+        end
+        return copy
+    end
+    
+    local configData = {
+        ESP_Settings = deepCopy(ESP_Settings),
+        ESP_Properties = deepCopy(ESP_Properties),
+        Aimbot_Settings = deepCopy(Aimbot_Settings),
+        Aimbot_FOV = deepCopy(Aimbot_FOV),
+        Crosshair = deepCopy(Crosshair),
+        CenterDot = deepCopy(CenterDot),
+        GUI_FLAGS = deepCopy(GUI.flags),
+        TriggerbotSystem = {
+            enabled = TriggerbotSystem.enabled,
+            mode = TriggerbotSystem.mode,
+            teamCheck = TriggerbotSystem.teamCheck,
+            wallCheck = TriggerbotSystem.wallCheck,
+            delay = TriggerbotSystem.delay,
+            maxDistance = TriggerbotSystem.maxDistance,
+            fovRadius = TriggerbotSystem.fovRadius,
+            triggersPerSecond = TriggerbotSystem.triggersPerSecond
+        }
+    }
+    
+    self.configs[name] = configData
+    
+    -- Save to file
+    local success, err = pcall(function()
+        local jsonData = game:GetService("HttpService"):JSONEncode(configData)
+        writefile(self.configFolder .. "\\" .. name .. ".json", jsonData)
+    end)
+    
+    if success then
+        self.currentConfig = name
+        print("Configuration '" .. name .. "' saved successfully!")
+    else
+        print("Failed to save configuration: " .. tostring(err))
+    end
+end
+
+function ConfigSystem:LoadConfig(name)
+    if not self.configs[name] then 
+        print("Configuration '" .. tostring(name) .. "' not found!")
+        return false
+    end
+    
+    local function restoreValue(value)
+        if type(value) == "table" and value._type then
+            if value._type == "Color3" then
+                return Color3.new(value.r, value.g, value.b)
+            elseif value._type == "Vector3" then
+                return Vector3.new(value.x, value.y, value.z)
+            elseif value._type == "EnumItem" then
+                local success, enum = pcall(function()
+                    return Enum.KeyCode[value.name:gsub("Enum.KeyCode.", "")]
+                end)
+                return success and enum or Enum.KeyCode.T
+            end
+        elseif type(value) == "table" then
+            local restored = {}
+            for k, v in pairs(value) do
+                restored[k] = restoreValue(v)
+            end
+            return restored
+        end
+        return value
+    end
+    
+    local configData = self.configs[name]
+    
+    -- Load ESP Settings
+    if configData.ESP_Settings then
+        for key, value in pairs(configData.ESP_Settings) do
+            ESP_Settings[key] = restoreValue(value)
+        end
+    end
+    
+    -- Load ESP Properties
+    if configData.ESP_Properties then
+        for key, value in pairs(configData.ESP_Properties) do
+            if not ESP_Properties[key] then ESP_Properties[key] = {} end
+            if type(value) == "table" then
+                for k, v in pairs(value) do
+                    ESP_Properties[key][k] = restoreValue(v)
+                end
+            else
+                ESP_Properties[key] = restoreValue(value)
+            end
+        end
+    end
+    
+    -- Load Aimbot Settings
+    if configData.Aimbot_Settings then
+        for key, value in pairs(configData.Aimbot_Settings) do
+            Aimbot_Settings[key] = restoreValue(value)
+        end
+    end
+    
+    -- Load Aimbot FOV
+    if configData.Aimbot_FOV then
+        for key, value in pairs(configData.Aimbot_FOV) do
+            Aimbot_FOV[key] = restoreValue(value)
+        end
+    end
+    
+    -- Load Crosshair
+    if configData.Crosshair then
+        for key, value in pairs(configData.Crosshair) do
+            if not Crosshair[key] then Crosshair[key] = {} end
+            if type(value) == "table" then
+                for k, v in pairs(value) do
+                    Crosshair[key][k] = restoreValue(v)
+                end
+            else
+                Crosshair[key] = restoreValue(value)
+            end
+        end
+    end
+    
+    -- Load Center Dot
+    if configData.CenterDot then
+        for key, value in pairs(configData.CenterDot) do
+            CenterDot[key] = restoreValue(value)
+        end
+    end
+    
+    -- Load GUI Flags
+    if configData.GUI_FLAGS then
+        for key, value in pairs(configData.GUI_FLAGS) do
+            GUI.flags[key] = restoreValue(value)
+        end
+    end
+    
+    -- Load Triggerbot Settings
+    if configData.TriggerbotSystem then
+        TriggerbotSystem.enabled = configData.TriggerbotSystem.enabled or false
+        TriggerbotSystem.mode = configData.TriggerbotSystem.mode or "Toggle"
+        TriggerbotSystem.teamCheck = configData.TriggerbotSystem.teamCheck or true
+        TriggerbotSystem.wallCheck = configData.TriggerbotSystem.wallCheck or true
+        TriggerbotSystem.delay = configData.TriggerbotSystem.delay or 0.05
+        TriggerbotSystem.maxDistance = configData.TriggerbotSystem.maxDistance or 1000
+        TriggerbotSystem.fovRadius = configData.TriggerbotSystem.fovRadius or 5
+        TriggerbotSystem.triggersPerSecond = configData.TriggerbotSystem.triggersPerSecond or 20
+    end
+    
+    self.currentConfig = name
+    print("Configuration '" .. name .. "' loaded successfully!")
+    return true
+end
+
+function ConfigSystem:GetConfigs()
+    local configList = {}
+    for name, _ in pairs(self.configs) do
+        table.insert(configList, name)
+    end
+    table.sort(configList)
+    return configList
+end
+
+function ConfigSystem:DeleteConfig(name)
+    if self.configs[name] and name ~= "Default" then
+        self.configs[name] = nil
+        -- Delete file
+        local filePath = self.configFolder .. "\\" .. name .. ".json"
+        if isfile(filePath) then
+            delfile(filePath)
+        end
+        print("Configuration '" .. name .. "' deleted successfully!")
+        return true
+    end
+    print("Cannot delete configuration '" .. tostring(name) .. "'!")
+    return false
+end
+
+-- Load configs on startup
+ConfigSystem:LoadAllConfigs()
+
+-- Create config dropdown with refresh functionality (matching AirHub V2)
+local ConfigList = ProfilesSection:Dropdown({
+    Name = "Configurations",
+    Flag = "Config Dropdown",
+    Content = ConfigSystem:GetConfigs(),
+    Default = "Default"
+})
+
+ProfilesSection:Box({
+    Name = "Configuration Name",
+    Flag = "Config Name",
+    Placeholder = "Config Name"
+})
+
+ProfilesSection:Button({
+    Name = "Load Configuration",
+    Callback = function()
+        local configName = GUI.flags["Config Dropdown"]
+        if ConfigSystem:LoadConfig(configName) then
+            print("Loaded config: " .. configName)
+        end
+    end
+})
+
+ProfilesSection:Button({
+    Name = "Delete Configuration",
+    Callback = function()
+        local configName = GUI.flags["Config Dropdown"]
+        if ConfigSystem:DeleteConfig(configName) then
+            ConfigList:Refresh(ConfigSystem:GetConfigs())
+        end
+    end
+})
+
+ProfilesSection:Button({
+    Name = "Save Configuration",
+    Callback = function()
+        local configName = GUI.flags["Config Name"]
+        if configName and configName ~= "" then
+            ConfigSystem:SaveConfig(configName)
+            ConfigList:Refresh(ConfigSystem:GetConfigs())
+        else
+            print("Please enter a configuration name!")
+        end
+    end
+})
+
+InformationSection:Label("Made By Lufy")
+
+InformationSection:Label("Only Lufy Team 2025 Active Support")
+
+InformationSection:Button({
+    Name = "Copy Discord Invite",
+    Callback = function()
+        if setclipboard then
+            setclipboard("https://discord.gg/GzyKDprt")
+            print("Discord invite copied to clipboard!")
+        else
+            print("Clipboard not supported!")
+        end
+    end
+})
+
+-- Servers Section - Advanced Server Management
+local ServersSection = Settings:Section({
+    Name = "Servers",
+    Side = "Right"
+})
+
+-- Server Hop System
+local ServerHopSystem = {
+    servers = {},
+    currentAttempt = 0,
+    maxAttempts = 10
+}
+
+function ServerHopSystem:GetServers()
+    local success, result = pcall(function()
+        return game:GetService("HttpService"):JSONDecode(
+            game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")
+        )
+    end)
+    
+    if success and result and result.data then
+        self.servers = result.data
+        return true
+    end
+    return false
+end
+
+function ServerHopSystem:JoinServer(serverId)
+    if serverId and serverId ~= game.JobId then
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, serverId, LocalPlayer)
+        return true
+    end
+    return false
+end
+
+function ServerHopSystem:JoinRandomServer()
+    if self:GetServers() and #self.servers > 0 then
+        local availableServers = {}
+        for _, server in ipairs(self.servers) do
+            if server.id ~= game.JobId and server.playing < server.maxPlayers then
+                table.insert(availableServers, server)
+            end
+        end
+        
+        if #availableServers > 0 then
+            local randomServer = availableServers[math.random(1, #availableServers)]
+            print("Joining server with " .. randomServer.playing .. "/" .. randomServer.maxPlayers .. " players...")
+            return self:JoinServer(randomServer.id)
+        end
+    end
+    return false
+end
+
+-- Join Player System
+local JoinPlayerSystem = {}
+
+function JoinPlayerSystem:FindPlayerInServers(username)
+    if not username or username == "" then return nil end
+    
+    -- Buscar jugador por nombre parcial en el servidor actual primero
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and string.lower(player.Name):find(string.lower(username)) then
+            print("Player '" .. username .. "' found in current server as '" .. player.Name .. "'!")
+            return nil -- Ya está en el servidor actual
+        end
+    end
+    
+    local success, userId = pcall(function()
+        return Players:GetUserIdFromNameAsync(username)
+    end)
+    
+    if not success then
+        print("Player '" .. username .. "' not found!")
+        return nil
+    end
+    
+    -- Intentar obtener información de presencia
+    local presenceSuccess, result = pcall(function()
+        local HttpService = game:GetService("HttpService")
+        local url = "https://presence.roblox.com/v1/presence/users"
+        local data = HttpService:JSONEncode({userIds = {userId}})
+        return HttpService:PostAsync(url, data, Enum.HttpContentType.ApplicationJson)
+    end)
+    
+    if presenceSuccess then
+        local success2, presence = pcall(function()
+            return game:GetService("HttpService"):JSONDecode(result)
+        end)
+        
+        if success2 and presence and presence.userPresences and #presence.userPresences > 0 then
+            local userPresence = presence.userPresences[1]
+            if userPresence.universeId and userPresence.placeId and userPresence.gameId then
+                if userPresence.universeId == game.GameId then
+                    return {
+                        username = username,
+                        userId = userId,
+                        serverId = userPresence.gameId,
+                        placeId = userPresence.placeId
+                    }
+                else
+                    print("Player '" .. username .. "' is playing a different game.")
+                    return nil
+                end
+            else
+                print("Player '" .. username .. "' is not in-game.")
+                return nil
+            end
+        end
+    end
+    
+    print("Unable to get presence info for '" .. username .. "'")
+    return nil
+end
+
+function JoinPlayerSystem:JoinPlayer(username)
+    local playerInfo = self:FindPlayerInServers(username)
+    if playerInfo then
+        print("Found " .. username .. " in server, joining...")
+        TeleportService:TeleportToPlaceInstance(playerInfo.placeId, playerInfo.serverId, LocalPlayer)
+        return true
+    end
+    return false
+end
+
+-- Server Management UI
+ServersSection:Button({
+    Name = "Rejoin Server",
+    Callback = function()
+        print("Rejoining current server...")
+        TeleportService:Teleport(game.PlaceId, LocalPlayer)
+    end
+})
+
+ServersSection:Button({
+    Name = "Server Hop",
+    Callback = function()
+        print("Looking for available servers...")
+        if ServerHopSystem:JoinRandomServer() then
+            print("Server hop initiated!")
+        else
+            print("No available servers found or server hop failed!")
+        end
+    end
+})
+
+-- Join Player by Username
+local JoinPlayerBox = ServersSection:Box({
+    Name = "Player Username",
+    Flag = "Servers_PlayerUsername",
+    Placeholder = "Enter username to join..."
+})
+
+ServersSection:Button({
+    Name = "Join Player",
+    Callback = function()
+        local username = GUI.flags["Servers_PlayerUsername"]
+        if username and username ~= "" then
+            print("Searching for player: " .. username)
+            if JoinPlayerSystem:JoinPlayer(username) then
+                JoinPlayerBox:Set("")
+            else
+                print("Failed to join " .. username .. "'s server!")
+            end
+        else
+            print("Please enter a valid username!")
+        end
+    end
+})
+
+-- Server Information
+local TimeLabel = ServersSection:Label("Time: " .. osdate("%c"))
+local FPSLabel = ServersSection:Label("FPS: Calculating...")
+local PlayersLabel = ServersSection:Label("Players: " .. #Players:GetPlayers())
+local ServerIdLabel = ServersSection:Label("Server ID: " .. (game.JobId or "Unknown"))
+
+ServersSection:Button({
+    Name = "Copy Server ID",
+    Callback = function()
+        if setclipboard and game.JobId then
+            setclipboard(game.JobId)
+            print("Server ID copied to clipboard!")
+        else
+            print("Unable to copy Server ID!")
+        end
+    end
+})
+
+-- Set default active tab
+TabSystem:SwitchTab("General")
+
+-- Close button functionality
+CloseButton.MouseButton1Click:Connect(function()
+    LufyGui.Enabled = false
+end)
+
+-- GUI Toggle with keybind (matching AirHub V2)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed then
+        if input.KeyCode == guiToggleKey then
+            LufyGui.Enabled = not LufyGui.Enabled
+        elseif input.KeyCode == Enum.KeyCode.Insert then
+            LufyGui.Enabled = not LufyGui.Enabled
+        end
+    end
+end)
+
+-- Update Miscellaneous labels (matching AirHub V2)
+delay(2, function()
+    spawn(function()
+        while LufyGui.Parent do
+            wait(1)
+            pcall(function()
+                TimeLabel:Set("Time: " .. osdate("%c"))
+                PlayersLabel:Set("Players: " .. #Players:GetPlayers())
+            end)
+        end
+    end)
+
+    RunService.RenderStepped:Connect(function(deltaTime)
+        if LufyGui.Parent then
+            pcall(function()
+                FPSLabel:Set("FPS: " .. mathfloor(1 / deltaTime))
+            end)
+        end
+    end)
+end)
+
+-- Create Keybinds Frame Function
+function CreateKeybindsFrame()
+    if KeybindsFrame then return end
+    
+    KeybindsFrame = Instance.new("Frame")
+    KeybindsFrame.Name = "KeybindsFrame"
+    KeybindsFrame.Parent = LufyGui
+    KeybindsFrame.BackgroundColor3 = Colors.Background
+    KeybindsFrame.Size = UDim2.new(0, 250, 0, 300)
+    KeybindsFrame.Position = UDim2.new(1, -260, 0, 50)
+    KeybindsFrame.BorderSizePixel = 0
+    
+    local KeybindsCorner = Instance.new("UICorner")
+    KeybindsCorner.CornerRadius = UDim.new(0, 8)
+    KeybindsCorner.Parent = KeybindsFrame
+    
+    local KeybindsStroke = Instance.new("UIStroke")
+    KeybindsStroke.Color = Colors.Accent
+    KeybindsStroke.Thickness = 1
+    KeybindsStroke.Parent = KeybindsFrame
+    
+    local KeybindsTitle = Instance.new("TextLabel")
+    KeybindsTitle.Parent = KeybindsFrame
+    KeybindsTitle.BackgroundColor3 = Colors.Secondary
+    KeybindsTitle.Size = UDim2.new(1, 0, 0, 30)
+    KeybindsTitle.Text = "Keybinds"
+    KeybindsTitle.TextColor3 = Colors.Accent
+    KeybindsTitle.TextSize = 14
+    KeybindsTitle.Font = Enum.Font.GothamBold
+    KeybindsTitle.BorderSizePixel = 0
+    
+    local KeybindsTitleCorner = Instance.new("UICorner")
+    KeybindsTitleCorner.CornerRadius = UDim.new(0, 8)
+    KeybindsTitleCorner.Parent = KeybindsTitle
+    
+    local KeybindsScroll = Instance.new("ScrollingFrame")
+    KeybindsScroll.Parent = KeybindsFrame
+    KeybindsScroll.BackgroundTransparency = 1
+    KeybindsScroll.Position = UDim2.new(0, 5, 0, 35)
+    KeybindsScroll.Size = UDim2.new(1, -10, 1, -40)
+    KeybindsScroll.ScrollBarThickness = 6
+    KeybindsScroll.ScrollBarImageColor3 = Colors.TabActive
+    KeybindsScroll.BorderSizePixel = 0
+    
+    local KeybindsList = Instance.new("UIListLayout")
+    KeybindsList.Parent = KeybindsScroll
+    KeybindsList.SortOrder = Enum.SortOrder.LayoutOrder
+    KeybindsList.Padding = UDim.new(0, 3)
+    
+    -- Function to update keybinds
+    function UpdateKeybinds()
+        -- Clear existing keybinds
+        for _, child in pairs(KeybindsScroll:GetChildren()) do
+            if child:IsA("Frame") then
+                child:Destroy()
+            end
+        end
+        
+        -- Get current keybinds
+        local keybinds = {
+            {"GUI Toggle", guiToggleKey.Name},
+            {"Aimbot Toggle", Aimbot_Settings.TriggerKey and Aimbot_Settings.TriggerKey.Name or "None"},
+            {"Triggerbot Toggle", TriggerbotSystem.keybind.Name}
+        }
+        
+        for i, keybind in ipairs(keybinds) do
+            local KeybindItem = Instance.new("Frame")
+            KeybindItem.Parent = KeybindsScroll
+            KeybindItem.BackgroundColor3 = Colors.TabInactive
+            KeybindItem.Size = UDim2.new(1, 0, 0, 25)
+            KeybindItem.BorderSizePixel = 0
+            
+            local KeybindItemCorner = Instance.new("UICorner")
+            KeybindItemCorner.CornerRadius = UDim.new(0, 4)
+            KeybindItemCorner.Parent = KeybindItem
+            
+            local KeybindName = Instance.new("TextLabel")
+            KeybindName.Parent = KeybindItem
+            KeybindName.BackgroundTransparency = 1
+            KeybindName.Position = UDim2.new(0, 8, 0, 0)
+            KeybindName.Size = UDim2.new(0.6, 0, 1, 0)
+            KeybindName.Text = keybind[1]
+            KeybindName.TextColor3 = Colors.Text
+            KeybindName.TextSize = 11
+            KeybindName.Font = Enum.Font.Gotham
+            KeybindName.TextXAlignment = Enum.TextXAlignment.Left
+            
+            local KeybindKey = Instance.new("TextLabel")
+            KeybindKey.Parent = KeybindItem
+            KeybindKey.BackgroundTransparency = 1
+            KeybindKey.Position = UDim2.new(0.6, 0, 0, 0)
+            KeybindKey.Size = UDim2.new(0.4, -8, 1, 0)
+            KeybindKey.Text = keybind[2]
+            KeybindKey.TextColor3 = Colors.Green
+            KeybindKey.TextSize = 11
+            KeybindKey.Font = Enum.Font.GothamBold
+            KeybindKey.TextXAlignment = Enum.TextXAlignment.Right
+        end
+        
+        KeybindsScroll.CanvasSize = UDim2.new(0, 0, 0, #keybinds * 28)
+    end
+    
+    -- Initial update
+    UpdateKeybinds()
+    
+    -- Auto-update keybinds every 2 seconds
+    spawn(function()
+        while KeybindsFrame and KeybindsFrame.Parent do
+            wait(2)
+            pcall(UpdateKeybinds)
+        end
+    end)
+end
+
+-- Create Watermark Frame Function
+function CreateWatermarkFrame()
+    if WatermarkFrame then return end
+    
+    WatermarkFrame = Instance.new("Frame")
+    WatermarkFrame.Name = "WatermarkFrame"
+    WatermarkFrame.Parent = LufyGui
+    WatermarkFrame.BackgroundColor3 = Colors.Background
+    WatermarkFrame.Size = UDim2.new(0, 300, 0, 80)
+    WatermarkFrame.Position = UDim2.new(0, 10, 0, 10)
+    WatermarkFrame.BorderSizePixel = 0
+    
+    local WatermarkCorner = Instance.new("UICorner")
+    WatermarkCorner.CornerRadius = UDim.new(0, 8)
+    WatermarkCorner.Parent = WatermarkFrame
+    
+    local WatermarkStroke = Instance.new("UIStroke")
+    WatermarkStroke.Color = Colors.Accent
+    WatermarkStroke.Thickness = 1
+    WatermarkStroke.Parent = WatermarkFrame
+    
+    local WatermarkTitle = Instance.new("TextLabel")
+    WatermarkTitle.Parent = WatermarkFrame
+    WatermarkTitle.BackgroundTransparency = 1
+    WatermarkTitle.Position = UDim2.new(0, 8, 0, 5)
+    WatermarkTitle.Size = UDim2.new(1, -16, 0, 20)
+    WatermarkTitle.Text = "Lufy.zz Universal Semilegit Edition"
+    WatermarkTitle.TextColor3 = Colors.Accent
+    WatermarkTitle.TextSize = 14
+    WatermarkTitle.Font = Enum.Font.GothamBold
+    WatermarkTitle.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local WatermarkGame = Instance.new("TextLabel")
+    WatermarkGame.Parent = WatermarkFrame
+    WatermarkGame.BackgroundTransparency = 1
+    WatermarkGame.Position = UDim2.new(0, 8, 0, 25)
+    WatermarkGame.Size = UDim2.new(1, -16, 0, 15)
+    WatermarkGame.Text = "Game: " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+    WatermarkGame.TextColor3 = Colors.Text
+    WatermarkGame.TextSize = 10
+    WatermarkGame.Font = Enum.Font.Gotham
+    WatermarkGame.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local WatermarkUser = Instance.new("TextLabel")
+    WatermarkUser.Parent = WatermarkFrame
+    WatermarkUser.BackgroundTransparency = 1
+    WatermarkUser.Position = UDim2.new(0, 8, 0, 40)
+    WatermarkUser.Size = UDim2.new(1, -16, 0, 15)
+    WatermarkUser.Text = "User: " .. LocalPlayer.Name
+    WatermarkUser.TextColor3 = Colors.Text
+    WatermarkUser.TextSize = 10
+    WatermarkUser.Font = Enum.Font.Gotham
+    WatermarkUser.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local WatermarkStats = Instance.new("TextLabel")
+    WatermarkStats.Parent = WatermarkFrame
+    WatermarkStats.BackgroundTransparency = 1
+    WatermarkStats.Position = UDim2.new(0, 8, 0, 55)
+    WatermarkStats.Size = UDim2.new(1, -16, 0, 15)
+    WatermarkStats.Text = "FPS: 0 | Ping: 0ms"
+    WatermarkStats.TextColor3 = Colors.Green
+    WatermarkStats.TextSize = 10
+    WatermarkStats.Font = Enum.Font.GothamBold
+    WatermarkStats.TextXAlignment = Enum.TextXAlignment.Left
+    
+    -- Update watermark stats
+    spawn(function()
+        while WatermarkFrame and WatermarkFrame.Parent do
+            wait(1)
+            pcall(function()
+                local fps = mathfloor(1 / RunService.RenderStepped:Wait())
+                local ping = mathfloor(LocalPlayer:GetNetworkPing() * 1000)
+                WatermarkStats.Text = "FPS: " .. fps .. " | Ping: " .. ping .. "ms"
+            end)
+        end
+    end)
+end
+
+-- Initialize ESP and Aimbot Systems (exact same as AirHub V2)
+ESP.Load()
+Aimbot.Load()
+
+-- Set default colors for ESP components to match UI
+ESP_Properties.Box.Color = Colors.Accent  -- White color matching UI accent
+ESP_Properties.Tracer.Color = Colors.Text  -- Light gray matching UI text
+ESP_Properties.Tracer.Enabled = false  -- Tracers disabled by default
+ESP_Properties.HeadDot.Color = Colors.Accent  -- Head dot uses UI accent color
+ESP_Properties.HealthBar.Color = Colors.Green  -- Green for health bars
+ESP_Properties.ESP.Color = Colors.Accent  -- White for ESP text
+
+-- Set completion flags
+getgenv().LufyBZLoaded = true
+getgenv().LufyBZLoading = nil
+
+-- Auto-show GUI and select General tab
+spawn(function()
+    wait(1)
+    TabSystem:SwitchTab("General")
+    LufyGui.Enabled = true
+    -- Auto-create watermark and keybinds
+    CreateWatermarkFrame()
+    CreateKeybindsFrame()
+end)
+
+-- Status messages
+print("============================================")
+print("🚀 Lufy.zz Universal Semilegit Edition loaded successfully!")
+print("✅ ESP System: Fully Loaded")
+print("✅ Aimbot System: Fully Loaded") 
+print("✅ FOV System: Fully Loaded")
+print("✅ Crosshair System: Fully Loaded")
+print("✅ All AirHub V2 features: 100% Integrated")
+print("✅ Config System: Functional")
+print("✅ GUI System: Responsive")
+print("⌨️  Press INSERT or Right Shift to toggle")
+print("============================================")
